@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FRC Team Data</title>
-    <style>
+      <style>
         /* Some basic styling */
         body {
             font-family: Arial, sans-serif;
@@ -12,6 +12,7 @@
             padding: 0;
             background-color: #f4f4f4;
         }
+        
         .container {
             max-width: 400px;
             margin: 50px auto;
@@ -51,6 +52,30 @@
             border-radius: 10px;
             margin-top: 10px;
         }
+        .combined-scores {
+            background-color: #f0f0f0;
+            padding: 10px;
+            border-radius: 10px;
+            margin-top: 10px;
+            display: inline-block;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 8px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+        th {
+            background-color: #007bff;
+            color: white;
+        }
+        .total-score {
+            font-weight: bold;
+            color: #007bff;
+        }
         @keyframes drawCircle {
             0% {
                 stroke-dasharray: 0 251.2; /* Length of circle circumference */
@@ -88,6 +113,8 @@
     </style>
 </head>
 <body>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+
     <div class="container">
         <h2>3324 - Team Analysis</h2>
         <input type="text" id="teamNumbers" placeholder="####...">
@@ -189,69 +216,86 @@
 
 
                 <div class="statistic-container">
-                    <p>Win-Loss Ratio (0-1): ${data.record.season.winrate.toFixed(4)}</p>
-                    ${data.epa.ranks.total ? `<p>Overall Rank (World): ${data.epa.ranks.total.rank} / ${data.epa.ranks.total.team_count}</p>` : ''}
-                    <p>Average Match Score: ${data.epa.breakdown.total_points.mean.toFixed(2)} ± (${data.epa.breakdown.total_points.sd.toFixed(2)})</p>
-                    <p>Average Teleop Score: ${data.epa.breakdown.teleop_points.mean.toFixed(2)} ± (${data.epa.breakdown.teleop_points.sd.toFixed(2)})</p>
-                    <p>Average Auto Score: ${data.epa.breakdown.auto_points.mean.toFixed(2)} ± (${data.epa.breakdown.auto_points.sd.toFixed(2)})</p>
-                    <p>Endgame Score: ${data.epa.breakdown.endgame_points.mean.toFixed(2)} ± (${data.epa.breakdown.endgame_points.sd.toFixed(2)})</p>
-                    ${data.state ? `<p>Ranking in Area: ${data.epa.ranks.state.rank} / ${data.epa.ranks.state.team_count} (${data.state})</p>` : ''}
+                    <p>Win-Loss Ratio (0-1): <b>${data.record.season.winrate.toFixed(4)}</b></p>
+                    ${data.epa.ranks.total ? `<p>Overall Rank (World): <b>${data.epa.ranks.total.rank}</b> / ${data.epa.ranks.total.team_count}</p>` : ''}
+                    <p>Average Match Score: <b>${data.epa.breakdown.total_points.mean.toFixed(2)}</b> ± ${data.epa.breakdown.total_points.sd.toFixed(2)}</p>
+                    <p>Average Teleop Score: <b>${data.epa.breakdown.teleop_points.mean.toFixed(2)}</b> ± ${data.epa.breakdown.teleop_points.sd.toFixed(2)}</p>
+                    <p>Average Auto Score: <b>${data.epa.breakdown.auto_points.mean.toFixed(2)}</b> ± ${data.epa.breakdown.auto_points.sd.toFixed(2)}</p>
+                    <p>Average Endgame Score: <b>${data.epa.breakdown.endgame_points.mean.toFixed(2)}</b> ± ${data.epa.breakdown.endgame_points.sd.toFixed(2)}</p>
+                    ${data.state ? `<p>Ranking in Area: <b>${data.epa.ranks.state.rank}</b> / ${data.epa.ranks.state.team_count} ${data.state}</p>` : ''}
                 </div>
             `;
           animateCircle(performance); // Start the circle animation with color based on performance
         }
 
         function displayAggregatedData(aggregatedData, teamDataArray) {
-            var teamData = document.getElementById('team-data');
-            var totalWinLossRatio = 0;
-            var totalOverallRank = 0;
-            var totalAverageMatchScore = 0;
-            var totalAverageTeleopScore = 0;
-            var totalAverageAutoScore = 0;
-            var totalEndgameScore = 0;
-            var teamNames = ''; // Initialize an empty string to store team names
+    var teamData = document.getElementById('team-data');
+    var totalWinLossRatio = 0;
+    var totalOverallRank = 0;
+    var totalAverageMatchScore = 0;
+    var totalAverageTeleopScore = 0;
+    var totalAverageAutoScore = 0;
+    var totalEndgameScore = 0;
+    var totalSDMatchScore = 0; // Initialize total standard deviations
+    var totalSDTeleopScore = 0;
+    var totalSDAutoScore = 0;
+    var totalSDEndgameScore = 0;
+    var teamNames = ''; // Initialize an empty string to store team names
 
-            teamDataArray.forEach(data => {
-                totalWinLossRatio += data.record.season.winrate;
-                totalOverallRank += data.epa.ranks.total.rank;
-                totalAverageMatchScore += data.epa.breakdown.total_points.mean;
-                totalAverageTeleopScore += data.epa.breakdown.teleop_points.mean;
-                totalAverageAutoScore += data.epa.breakdown.auto_points.mean;
-                totalEndgameScore += data.epa.breakdown.endgame_points.mean;
+    teamDataArray.forEach(data => {
+        totalWinLossRatio += data.record.season.winrate;
+        totalOverallRank += data.epa.ranks.total.rank;
+        totalAverageMatchScore += data.epa.breakdown.total_points.mean;
+        totalAverageTeleopScore += data.epa.breakdown.teleop_points.mean;
+        totalAverageAutoScore += data.epa.breakdown.auto_points.mean;
+        totalEndgameScore += data.epa.breakdown.endgame_points.mean;
 
-                // Append team name to the list
-                teamNames += `${data.name}, `;
-            });
+        // Accumulate standard deviations
+        totalSDMatchScore += data.epa.breakdown.total_points.sd;
+        totalSDTeleopScore += data.epa.breakdown.teleop_points.sd;
+        totalSDAutoScore += data.epa.breakdown.auto_points.sd;
+        totalSDEndgameScore += data.epa.breakdown.endgame_points.sd;
 
-            // Remove the trailing comma and space
-            teamNames = teamNames.slice(0, -2);
+        // Append team name to the list
+        teamNames += `${data.name}, `;
+    });
 
-            var averageWinLossRatio = totalWinLossRatio / teamDataArray.length;
-            var averageOverallRank = totalOverallRank / teamDataArray.length;
-            var averageAverageMatchScore = totalAverageMatchScore;
-            var averageAverageTeleopScore = totalAverageTeleopScore;
-            var averageAverageAutoScore = totalAverageAutoScore;
-            var averageEndgameScore = totalEndgameScore;
+    // Remove the trailing comma and space
+    teamNames = teamNames.slice(0, -2);
 
-            var compositeScore = aggregatedData.compositeScore;
+    var averageWinLossRatio = totalWinLossRatio / teamDataArray.length;
+    var averageOverallRank = totalOverallRank / teamDataArray.length;
+    var averageAverageMatchScore = totalAverageMatchScore;
+    var averageAverageTeleopScore = totalAverageTeleopScore;
+    var averageAverageAutoScore = totalAverageAutoScore;
+    var averageEndgameScore = totalEndgameScore;
 
-            teamData.innerHTML = `
-                <h2>Alliance Data</h2>
-<svg width="200" height="200" onclick="toggleTeamData()">
+    // Calculate average standard deviations
+    var averageSDMatchScore = totalSDMatchScore / teamDataArray.length;
+    var averageSDTeleopScore = totalSDTeleopScore / teamDataArray.length;
+    var averageSDAutoScore = totalSDAutoScore / teamDataArray.length;
+    var averageSDEndgameScore = totalSDEndgameScore / teamDataArray.length;
+
+    var compositeScore = aggregatedData.compositeScore;
+
+    teamData.innerHTML = `
+        <h2>Alliance Data</h2>
+        <svg width="200" height="200" onclick="toggleTeamData()">
             <circle class="circle" cx="100" cy="100" r="80"></circle>
             <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="black" font-size="24px">${compositeScore.toFixed(2)}</text>
         </svg>
-                <div class="statistic-container">
-                    <p>Teams: ${teamNames}</p> <!-- Display team names here -->
-                    <p>Est. Win-Loss Ratio: ${averageWinLossRatio.toFixed(4)}</p>
-                    <p>Est. Average Match Score: ${averageAverageMatchScore.toFixed(2)}</p>
-                    <p>Est. Average Teleop Score: ${averageAverageTeleopScore.toFixed(2)}</p>
-                    <p>Est. Average Auto Score: ${averageAverageAutoScore.toFixed(2)}</p>
-                    <p>Est. Average Endgame Score: ${averageEndgameScore.toFixed(2)}</p>
-                </div>
-            `;
-          animateCircle(compositeScore); // Start the circle animation with color based on performance
-        }
+        <div class="statistic-container">
+            <p>Teams: ${teamNames}</p> <!-- Display team names here -->
+            <p>Est. Win-Loss Ratio: ${averageWinLossRatio.toFixed(4)}</p>
+            <p>Est. Average Match Score: <b>${averageAverageMatchScore.toFixed(2)}</b> ± ${averageSDMatchScore.toFixed(2)}</p>
+            <p>Est. Average Teleop Score: <b>${averageAverageTeleopScore.toFixed(2)}</b> ± ${averageSDTeleopScore.toFixed(2)}</p>
+            <p>Est. Average Auto Score: <b>${averageAverageAutoScore.toFixed(2)}</b> ± ${averageSDAutoScore.toFixed(2)}</p>
+            <p>Est. Average Endgame Score: <b>${averageEndgameScore.toFixed(2)}</b> ± ${averageSDEndgameScore.toFixed(2)}</p>
+        </div>
+    `;
+    animateCircle(compositeScore); // Start the circle animation with color based on performance
+}
+
 
         function animateCircle(performance) {
             var circle = document.querySelector('.circle');
@@ -328,17 +372,195 @@ function displaySummedPoints(totalPoints1, totalPoints2, teamDataArray) {
     var p2 = totalPoints2.toFixed(2);
     var pd1 = totalPoints1.toFixed(2) - totalPoints2.toFixed(2);
     var pd2 = totalPoints2.toFixed(2) - totalPoints1.toFixed(2);
-    teamData.innerHTML = '<h2>Summed Points for Each Group</h2>';
+    teamData.innerHTML = '<h2>Point Diff:</h2>';
 
-    teamData.innerHTML += `<p>Red Alliance: <b>${p1}</b></p>`;
-    teamData.innerHTML += `<p>Blue Alliance: <b>${p2}</b></p>`;
-
-    if (pd2 > 0) {
-      teamData.innerHTML += `<p>Point Diff: <b><span style="color: red;">${pd2} (A1)</span></b></p>`;
-    } else {
-            teamData.innerHTML += `<p>Point Diff: <b><span style="color: blue;">${pd1} (A2)</span></b></p>`;
+    // Create a table element
+    var table = document.createElement('table');
+    // Create table rows and cells for each data point
+    if (pd1 > 0) {
+        var row1 = table.insertRow();
+        var cell1_1 = row1.insertCell(0);
+        var cell1_2 = row1.insertCell(1);
+        cell1_1.textContent = 'Point Diff (A1):';
+        cell1_2.id = 'pointDiffCellA1';
+        cell1_2.className = 'point-diff-cell';
+        cell1_2.innerHTML = `<span style="color: red;"><b>${pd1}</b></span>`;
+        cell1_2.style.cursor = 'pointer'; // Add this line to change the cursor to a pointer
+        cell1_2.addEventListener('click', function() {
+            console.log('Clicked Point Diff (A1)');
+            toggleCombinedScores(teamDataArray.slice(0, 3), teamDataArray.slice(3, 6));
+        });
     }
-     
+    if (pd2 > 0) {
+        var row2 = table.insertRow();
+        var cell2_1 = row2.insertCell(0);
+        var cell2_2 = row2.insertCell(1);
+        cell2_1.textContent = 'Point Diff (A2):';
+        cell2_2.id = 'pointDiffCellA2';
+        cell2_2.className = 'point-diff-cell';
+        cell2_2.innerHTML = `<span style="color: blue;"><b>${pd2}</b></span>`;
+        cell2_2.style.cursor = 'pointer'; // Add this line to change the cursor to a pointer
+        cell2_2.addEventListener('click', function() {
+            console.log('Clicked Point Diff (A2)');
+            toggleCombinedScores(teamDataArray.slice(0, 3), teamDataArray.slice(3, 6));
+        });
+    }
+    // Append the table to the teamData div
+    teamData.appendChild(table);
+}
+
+function toggleCombinedScores(alliance1, alliance2) {
+    console.log('Toggling Combined Scores');
+    var combinedScores = document.getElementById('combined-scores');
+    if (combinedScores.style.display === 'none') {
+        displayCombinedScores(alliance1, alliance2);
+        combinedScores.style.display = 'block';
+    } else {
+        combinedScores.style.display = 'none';
+    }
+}
+
+function displayCombinedScores(alliance1, alliance2) {
+    var teamData = document.getElementById('team-data');
+    var combinedScores = document.getElementById('combined-scores');
+    // If combinedScores already exists, remove it
+    if (combinedScores) {
+        combinedScores.remove();
+    }
+    // Create a div element for combined scores
+    combinedScores = document.createElement('div');
+    combinedScores.id = 'combined-scores';
+    combinedScores.innerHTML = '<h2>Match Breakdown</h2>';
+
+    // Calculate total scores and standard deviations for each alliance
+    var totalPointsAuto1 = alliance1.reduce((sum, data) => sum + data.epa.breakdown.auto_points.mean, 0);
+    var totalPointsTeleop1 = alliance1.reduce((sum, data) => sum + data.epa.breakdown.teleop_points.mean, 0);
+    var totalPointsEndgame1 = alliance1.reduce((sum, data) => sum + data.epa.breakdown.endgame_points.mean, 0);
+    var totalSDAuto1 = Math.sqrt(alliance1.reduce((sum, data) => sum + Math.pow(data.epa.breakdown.auto_points.sd, 2), 0)); // Correcting the standard deviation calculation
+    var totalSDTeleop1 = Math.sqrt(alliance1.reduce((sum, data) => sum + Math.pow(data.epa.breakdown.teleop_points.sd, 2), 0)); // Correcting the standard deviation calculation
+    var totalSDEndgame1 = Math.sqrt(alliance1.reduce((sum, data) => sum + Math.pow(data.epa.breakdown.endgame_points.sd, 2), 0)); // Correcting the standard deviation calculation
+
+    var totalPointsAuto2 = alliance2.reduce((sum, data) => sum + data.epa.breakdown.auto_points.mean, 0);
+    var totalPointsTeleop2 = alliance2.reduce((sum, data) => sum + data.epa.breakdown.teleop_points.mean, 0);
+    var totalPointsEndgame2 = alliance2.reduce((sum, data) => sum + data.epa.breakdown.endgame_points.mean, 0);
+    var totalSDAuto2 = Math.sqrt(alliance2.reduce((sum, data) => sum + Math.pow(data.epa.breakdown.auto_points.sd, 2), 0)); // Correcting the standard deviation calculation
+    var totalSDTeleop2 = Math.sqrt(alliance2.reduce((sum, data) => sum + Math.pow(data.epa.breakdown.teleop_points.sd, 2), 0)); // Correcting the standard deviation calculation
+    var totalSDEndgame2 = Math.sqrt(alliance2.reduce((sum, data) => sum + Math.pow(data.epa.breakdown.endgame_points.sd, 2), 0)); // Correcting the standard deviation calculation
+
+    // Create a table element for combined scores
+    var table = document.createElement('table');
+    // Create table rows and cells for each alliance
+    table.innerHTML += `
+        <tr>
+            <th>Alliance</th>
+            <th>Auto (± SD)</th>
+            <th>Teleop (± SD)</th>
+            <th>Endgame (± SD)</th>
+        </tr>
+        <tr>
+            <td>Red Alliance:</td>
+            <td><b>${totalPointsAuto1.toFixed(2)}</b> ± ${totalSDAuto1.toFixed(2)}</td>
+            <td><b>${totalPointsTeleop1.toFixed(2)}</b> ± ${totalSDTeleop1.toFixed(2)}</td>
+            <td><b>${totalPointsEndgame1.toFixed(2)}</b> ± ${totalSDEndgame1.toFixed(2)}</td>
+        </tr>
+        <tr>
+            <td>Blue Alliance:</td>
+            <td><b>${totalPointsAuto2.toFixed(2)}</b> ± ${totalSDAuto2.toFixed(2)}</td>
+            <td><b>${totalPointsTeleop2.toFixed(2)}</b> ± ${totalSDTeleop2.toFixed(2)}</td>
+            <td><b>${totalPointsEndgame2.toFixed(2)}</b> ± ${totalSDEndgame2.toFixed(2)}</td>
+        </tr>
+    `;
+    // Append the table to the combined scores div
+    combinedScores.appendChild(table);
+
+    // Create datasets for the combined scores
+    var datasets = [{
+        label: 'Red Alliance',
+        borderColor: 'rgba(255, 99, 132, 1)',
+        data: [totalPointsAuto1, totalPointsTeleop1, totalPointsEndgame1]
+    }, {
+        label: 'Blue Alliance',
+        borderColor: 'rgba(54, 162, 235, 1)',
+        data: [totalPointsAuto2, totalPointsTeleop2, totalPointsEndgame2]
+    }];
+
+    // Create a div for the chart
+    var chartContainer = document.createElement('div');
+    chartContainer.classList.add('chart-container');
+    combinedScores.appendChild(chartContainer);
+
+    // Create Chart.js instance for the combined scores chart
+    var combinedChartCanvas = document.createElement('canvas');
+    combinedChartCanvas.id = 'combined-chart';
+    chartContainer.appendChild(combinedChartCanvas);
+
+    var combinedChart = new Chart(combinedChartCanvas, {
+        type: 'line',
+        data: {
+            labels: ['Auto', 'Teleop', 'Endgame'],
+            datasets: datasets
+        },
+        options: {
+            scales: {
+                x: {
+                    title: {
+                        display: true,
+                        text: 'Game Phases'
+                    }
+                },
+                y: {
+                    title: {
+                        display: true,
+                        text: 'Scores'
+                    }
+                }
+            },
+            plugins: {
+                tooltip: {
+                    mode: 'nearest', // Set tooltip mode to nearest for interpolation
+                    callbacks: {
+                        label: function(context) {
+                            var label = context.dataset.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            if (context.parsed.y !== null) {
+                                label += context.parsed.y.toFixed(2);
+                            }
+                            if (context.dataset.label === 'Red Alliance') {
+                                // Get the corresponding y-value for the Blue Alliance
+                                var blueAllianceValue = datasets[1].data[context.dataIndex].toFixed(2);
+                                label += ' - (' + blueAllianceValue + ')';
+                            } else {
+                                // Get the corresponding y-value for the Red Alliance
+                                var redAllianceValue = datasets[0].data[context.dataIndex].toFixed(2);
+                                label += ' - (' + redAllianceValue + ')';
+                            }
+                            return label;
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // Append the combined scores div to the teamData div
+    teamData.appendChild(combinedScores);
+}
+
+
+
+
+
+function toggleCombinedScores(alliance1, alliance2) {
+    var combinedScores = document.getElementById('combined-scores');
+    if (!combinedScores) {
+        displayCombinedScores(alliance1, alliance2);
+    } else {
+        combinedScores.remove();
+    }
+
+
 }
 
     </script>
