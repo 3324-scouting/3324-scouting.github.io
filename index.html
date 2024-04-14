@@ -372,6 +372,9 @@ function displaySummedPoints(totalPoints1, totalPoints2, teamDataArray) {
     var p2 = totalPoints2.toFixed(2);
     var pd1 = totalPoints1.toFixed(2) - totalPoints2.toFixed(2);
     var pd2 = totalPoints2.toFixed(2) - totalPoints1.toFixed(2);
+    var sd1 = Math.sqrt(Math.pow(teamDataArray[0].epa.breakdown.auto_points.sd, 2) + Math.pow(teamDataArray[1].epa.breakdown.teleop_points.sd, 2) + Math.pow(teamDataArray[2].epa.breakdown.endgame_points.sd, 2));
+    var sd2 = Math.sqrt(Math.pow(teamDataArray[3].epa.breakdown.auto_points.sd, 2) + Math.pow(teamDataArray[4].epa.breakdown.teleop_points.sd, 2) + Math.pow(teamDataArray[5].epa.breakdown.endgame_points.sd, 2));
+
     teamData.innerHTML = '<h2>Point Diff:</h2>';
 
     // Create a table element
@@ -384,7 +387,7 @@ function displaySummedPoints(totalPoints1, totalPoints2, teamDataArray) {
         cell1_1.textContent = 'Point Diff (A1):';
         cell1_2.id = 'pointDiffCellA1';
         cell1_2.className = 'point-diff-cell';
-        cell1_2.innerHTML = `<span style="color: red;"><b>${pd1}</b></span>`;
+        cell1_2.innerHTML = `<span style="color: red;"><b>${pd1.toFixed(2)} ± ${sd1.toFixed(2)}</b></span>`;
         cell1_2.style.cursor = 'pointer'; // Add this line to change the cursor to a pointer
         cell1_2.addEventListener('click', function() {
             console.log('Clicked Point Diff (A1)');
@@ -398,7 +401,7 @@ function displaySummedPoints(totalPoints1, totalPoints2, teamDataArray) {
         cell2_1.textContent = 'Point Diff (A2):';
         cell2_2.id = 'pointDiffCellA2';
         cell2_2.className = 'point-diff-cell';
-        cell2_2.innerHTML = `<span style="color: blue;"><b>${pd2}</b></span>`;
+        cell2_2.innerHTML = `<span style="color: blue;"><b>${pd2.toFixed(2)} ± ${sd2.toFixed(2)}</b></span>`;
         cell2_2.style.cursor = 'pointer'; // Add this line to change the cursor to a pointer
         cell2_2.addEventListener('click', function() {
             console.log('Clicked Point Diff (A2)');
@@ -408,6 +411,7 @@ function displaySummedPoints(totalPoints1, totalPoints2, teamDataArray) {
     // Append the table to the teamData div
     teamData.appendChild(table);
 }
+
 
 function toggleCombinedScores(alliance1, alliance2) {
     console.log('Toggling Combined Scores');
