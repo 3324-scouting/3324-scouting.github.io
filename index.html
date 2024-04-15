@@ -470,7 +470,7 @@
 
     function checkInputFormat() {
       var teamNumbersInput = document.getElementById('teamNumbers').value;
-      var regex = /^(\d{1,4}(, \d{1,4})* - \d{1,4}(, \d{1,4})*)?$/;
+      var regex = /^\s*(\d{1,4}(,\s?\d{1,4})* - \d{1,4}(,\s?\d{1,4})*)?\s*$/;
       if (regex.test(teamNumbersInput)) {
         console.log('Input matches the desired format:', teamNumbersInput);
         // Call the function to fetch and process team data
@@ -527,7 +527,7 @@
         cell1_1.textContent = 'Point Diff (A1):';
         cell1_2.id = 'pointDiffCellA1';
         cell1_2.className = 'point-diff-cell';
-        cell1_2.innerHTML = `<span style="color: red;"><b>${pd1.toFixed(2)} ± ${sd1.toFixed(2)}</b></span>`;
+        cell1_2.innerHTML = `<span style="color: #F91A48;"><b>${pd1.toFixed(2)} ± ${sd1.toFixed(2)}</b></span>`;
         cell1_2.style.cursor = 'pointer'; // Add this line to change the cursor to a pointer
         cell1_2.addEventListener('click', function() {
           console.log('Clicked Point Diff (A1)');
@@ -541,7 +541,7 @@
         cell2_1.textContent = 'Point Diff (A2):';
         cell2_2.id = 'pointDiffCellA2';
         cell2_2.className = 'point-diff-cell';
-        cell2_2.innerHTML = `<span style="color: blue;"><b>${pd2.toFixed(2)} ± ${sd2.toFixed(2)}</b></span>`;
+        cell2_2.innerHTML = `<span style="color: #087cfc;"><b>${pd2.toFixed(2)} ± ${sd2.toFixed(2)}</b></span>`;
         cell2_2.style.cursor = 'pointer'; // Add this line to change the cursor to a pointer
         cell2_2.addEventListener('click', function() {
           console.log('Clicked Point Diff (A2)');
@@ -615,11 +615,11 @@
       // Create datasets for the combined scores
       var datasets = [{
         label: 'Red Alliance',
-        borderColor: 'rgba(255, 99, 132, 1)',
+        borderColor: 'rgba(249, 26, 72, 1)',
         data: [totalPointsAuto1, totalPointsTeleop1, totalPointsEndgame1]
       }, {
         label: 'Blue Alliance',
-        borderColor: 'rgba(54, 162, 235, 1)',
+        borderColor: 'rgba(8,124,252, 1)',
         data: [totalPointsAuto2, totalPointsTeleop2, totalPointsEndgame2]
       }];
       // Create a div for the chart
