@@ -691,10 +691,27 @@
         combinedScores.remove();
       }
     }
-      function toggleDarkMode() {
+function toggleDarkMode() {
     // Toggle dark mode class on the body
     document.body.classList.toggle('dark-mode');
-  }
+
+    // Smoothly transition background color
+    const containers = document.querySelectorAll('.container');
+    containers.forEach(container => {
+        container.style.transition = 'background-color 0.5s ease';
+    });
+
+    // Smoothly transition input field color
+    const inputFields = document.querySelectorAll('input[type="text"]');
+    inputFields.forEach(input => {
+        input.style.transition = 'background-color 0.5s ease';
+    });
+
+    // Smoothly transition toggle button color
+    const toggleButton = document.querySelector('.dark-mode-toggle');
+    toggleButton.style.transition = 'background-color 0.5s ease';
+}
+
   </script>
 </body>
 
