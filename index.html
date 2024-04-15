@@ -140,6 +140,14 @@
   font-size: 24px;
   cursor: pointer;
 }
+    
+    .red {
+  color: red;
+}
+
+.blue {
+  color: blue;
+}
 
 /* Light mode styles */
 .light-mode .score-text {
@@ -468,17 +476,51 @@
       return color;
     }
 
-    function checkInputFormat() {
-      var teamNumbersInput = document.getElementById('teamNumbers').value;
-      var regex = /^\s*(\d{1,4}(,\s?\d{1,4})* - \d{1,4}(,\s?\d{1,4})*)?\s*$/;
-      if (regex.test(teamNumbersInput)) {
-        console.log('Input matches the desired format:', teamNumbersInput);
-        // Call the function to fetch and process team data
-        fetchAndProcessTeamData(teamNumbersInput);
-      } else {
-        console.log('Input does not match the desired format.');
-      }
-    }
+function checkInputFormat() {
+  var teamNumbersInput = document.getElementById('teamNumbers').value;
+  var regex = /^\s*(\d{1,4}(,\s?\d{1,4})* - \d{1,4}(,\s?\d{1,4})*)?\s*$/;
+  if (regex.test(teamNumbersInput)) {
+    console.log('Input matches the desired format:', teamNumbersInput);
+    // Call the function to fetch and process team data
+    fetchAndProcessTeamData(teamNumbersInput);
+
+    // Split the input into two groups: before and after the hyphen
+    var [group1, group2] = teamNumbersInput.split(' - ');
+    // Split each group into individual team numbers
+    var teamNumbers1 = group1.split(',').map(num => num.trim());
+    var teamNumbers2 = group2.split(',').map(num => num.trim());
+
+    var teamDataElement = document.getElementById('team-data');
+    var teamDataHTML = '';
+
+    teamNumbers1.forEach(num => {
+      teamDataHTML += '<span class="red">' + num + '</span> ';
+    });
+
+    teamNumbers2.forEach(num => {
+      teamDataHTML += '<span class="blue">' + num + '</span> ';
+    });
+
+    teamDataElement.innerHTML = teamDataHTML;
+
+    // Delay the removal of the coloring
+    setTimeout(() => {
+      removeColoring();
+    }, 3000); // Adjust the duration as needed (in milliseconds)
+  } else {
+    console.log('Input does not match the desired format.');
+  }
+}
+
+function removeColoring() {
+  var coloredNumbers = document.querySelectorAll('.red, .blue');
+  coloredNumbers.forEach(number => {
+    number.classList.remove('red', 'blue');
+  });
+}
+
+
+
 
     function fetchAndProcessTeamData(teamNumbersInput) {
       // Split the input into two groups: before and after the hyphen
