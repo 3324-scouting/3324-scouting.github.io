@@ -124,6 +124,7 @@
       left: 50%;
       transform: translate(0%, 0%);
       font-size: 24px;
+      fill: gray;
       cursor: pointer;
     }
 
@@ -281,6 +282,15 @@
     .dark-mode .dark-mode-toggle::after {
       background-color: #fff !important;
     }
+    .taClass {
+      color: black;
+    }
+    .atClass {
+      color: black;
+    }
+    .tatClass {
+      color: black;
+    }
   </style>
 </head>
 
@@ -288,7 +298,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
 
   <div class="container">
-    <h2>3324 - Team Analysis</h2>
+    <h2 class="taClass">3324 - Team Analysis</h2>
     <input type="text" id="teamNumbers" placeholder="####...">
     <button onclick="getTeamData()">Search</button>
     <div class="dark-mode-toggle" onclick="toggleDarkMode()"></div>
@@ -380,7 +390,7 @@
       var teamData = document.getElementById('team-data');
       fetchTeamColors(data.team);
       teamData.innerHTML = `
-                <h2>${data.name} (${new Date().getFullYear()})</h2>
+                <h2 class="atClass">${data.name} (${new Date().getFullYear()})</h2>
 <svg width="200" height="200" onclick="toggleTeamData()">
     <circle class="circle" cx="100" cy="100" r="80"></circle>
     <text x="100" y="100" dominant-baseline="middle" text-anchor="middle" class="score-text">${performance.toFixed(2)}</text>
@@ -739,6 +749,12 @@
       // Toggle dark mode class on the body
       
       document.body.classList.toggle('dark-mode');
+      const taClass = document.querySelector('.taClass'); 
+      const atClass = document.querySelector('.atClass');
+      const tatClass = document.querySelector('.tatClass');
+      taClass.style.color = 'white';
+      atClass.style.color = 'white';
+      tatClass.style.color = 'white';
     }
 function fetchTeamColors(teamNumber) {
 
@@ -750,19 +766,38 @@ function fetchTeamColors(teamNumber) {
             const primaryColor = data.colors.primary;
             const secondaryColor = data.colors.secondary;
             const container = document.querySelector('.container');
+            const taClass = document.querySelector('.taClass'); 
+            const atClass = document.querySelector('.atClass');
+            const tatClass = document.querySelector('.team-data');
 
-            // Set transition property for body and container elements
+            // Set transition property for body, container, and taClass elements
             document.body.style.transition = 'background-color 1s ease';
             if (container) {
                 container.style.transition = 'background-color 1s ease';
             }
-            
+
             // Change the background color of the body with a fade effect
             document.body.style.backgroundColor = primaryColor;
 
             // If container exists, change its background color with a fade effect
             if (container) {
                 container.style.backgroundColor = secondaryColor;
+                const secondaryColorBrightness = getColorBrightness(secondaryColor);
+                if (secondaryColorBrightness <= 50) {
+                    if (taClass) { // Changed from teamData to taClass
+                        taClass.style.color = 'white';
+                        atClass.style.color = 'white';
+                        tatClass.style.fill = 'white';
+                        console.log("Text color set to white because the background is dark enough.");
+                    }
+                } else {
+                    if (taClass) { // Changed from teamData to taClass
+                        taClass.style.color = 'black';
+                        atClass.style.color = 'black';
+                        tatClass.style.fill = 'black';
+                        console.log("Text color set to black because the background is light.");
+                    }
+                }
             } else {
                 console.error('Container element not found.');
             }
@@ -770,6 +805,18 @@ function fetchTeamColors(teamNumber) {
         .catch(error => {
             console.error('Error fetching team colors:', error);
         });
+}
+
+
+// Function to calculate color brightness
+function getColorBrightness(color) {
+    // Convert hex color to RGB
+    const hex = color.replace('#', '');
+    const r = parseInt(hex.substring(0, 2), 16);
+    const g = parseInt(hex.substring(2, 4), 16);
+    const b = parseInt(hex.substring(4, 6), 16);
+    // Calculate color brightness using the relative luminance formula
+    return (r * 0.299 + g * 0.587 + b * 0.114);
 }
 
 // Function to clear previous colors
@@ -782,7 +829,15 @@ function clearColors() {
     if (container) {
         container.style.backgroundColor = '';
     }
+
+    // Reset teamData text color
+    const teamData = document.querySelector('.team-data');
+    if (teamData) {
+        teamData.style.fill = '';
+    }
 }
+
+
 
   </script>
 </body>
