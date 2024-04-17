@@ -741,8 +741,6 @@
       document.body.classList.toggle('dark-mode');
     }
 function fetchTeamColors(teamNumber) {
-    // Clear previous colors
-    clearColors();
 
     // Make a GET request to the API endpoint
     fetch(`https://api.statbotics.io/v3/team/${teamNumber}`)
