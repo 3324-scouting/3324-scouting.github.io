@@ -291,6 +291,20 @@
     .tatClass {
       color: black;
     }
+    .docs-button {
+    position: fixed; /* Fixed positioning */
+    bottom: 20px; /* Distance from the bottom */
+    left: 20px; /* Distance from the left */
+    background-color: #007bff; /* Button background color */
+    color: #fff; /* Text color */
+    padding: 10px 20px; /* Padding for the button */
+    border-radius: 5px; /* Rounded corners */
+    text-decoration: none; /* Remove underline from link */
+}
+
+.docs-button:hover {
+    background-color: #0056b3; /* Change background color on hover */
+}
   </style>
 </head>
 
@@ -302,6 +316,7 @@
     <input type="text" id="teamNumbers" placeholder="####...">
     <button onclick="getTeamData()">Search</button>
     <div class="dark-mode-toggle" onclick="toggleDarkMode()"></div>
+    <a href="https://metrobots.github.io/docs/docs.html" class="docs-button">Docs</a>
     <div id="team-data"></div>
   </div>
 
