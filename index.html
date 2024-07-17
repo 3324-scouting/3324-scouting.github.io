@@ -937,19 +937,24 @@ function exportAllianceComparisonToCSV(input) {
         csvContent += `Score Difference,${Math.abs(redScore - blueScore).toFixed(2)}\n`;
 
 
-        var encodedUri = encodeURI(csvContent);
-        var link = document.createElement("a");
-        link.setAttribute("href", encodedUri);
-        link.setAttribute("download", "alliance_comparison.csv");
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+var encodedUri = encodeURI(csvContent);
+var link = document.createElement("a");
+var date = new Date();
+var formattedDate = date.toISOString().split('T')[0];
+var fileName = "alliance_comparison_" + formattedDate + ".csv";
+link.setAttribute("href", encodedUri);
+link.setAttribute("download", fileName);
+document.body.appendChild(link);
+link.click();
+document.body.removeChild(link);
+
     })
     .catch(error => {
         console.error('Error fetching team data for CSV:', error);
     });
 }
 
+    
 function exportSingleTeamsToCSV(input) {
     var teamNumbers = input.split(',').map(num => num.trim());
 
@@ -960,14 +965,25 @@ function exportSingleTeamsToCSV(input) {
 
     Promise.all(teamNumbers.map(teamNumber => {
         return fetch(`https://api.statbotics.io/v3/team_year/${teamNumber}/${new Date().getFullYear()}`)
-            .then(response => response.json());
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .catch(error => {
+                console.error('Error fetching team data:', error);
+                throw error; // Rethrow the error to be caught in the outer .catch()
+            });
     }))
     .then(teamDataArray => {
+        if (teamDataArray.length === 0) {
+            throw new Error('No data received for team numbers');
+        }
+
         let csvContent = "data:text/csv;charset=utf-8,";
-        
 
         csvContent += "Team Number,Team Name,Win-Loss Ratio,Overall Rank,Average Match Score,Average Teleop Score,Average Auto Score,Average Endgame Score\n";
-        
 
         teamDataArray.forEach(data => {
             let row = [
@@ -982,22 +998,28 @@ function exportSingleTeamsToCSV(input) {
             ];
             csvContent += row.join(",") + "\n";
         });
-        
-    
+
         var encodedUri = encodeURI(csvContent);
         var link = document.createElement("a");
+
+        // Use data.name for the file name
+        var formattedDate = new Date().toISOString().split('T')[0];
+        var fileName = sanitizeFileName(teamDataArray[0].name) + "." + formattedDate + ".csv";
         link.setAttribute("href", encodedUri);
-        link.setAttribute("download", "team_data.csv");
+        link.setAttribute("download", fileName);
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
     })
     .catch(error => {
-        console.error('Error fetching team data for CSV:', error);
+        console.error('Error generating CSV:', error.message || error);
         alert('An error occurred while generating the CSV. Please try again.');
     });
 
-  
+
+function sanitizeFileName(name) {
+    return name.replace(/[^\w\s]/gi, '').replace(/\s+/g, '_'); // Replace non-alphanumeric characters with underscores and spaces with underscores
+}
 }
   </script>
 </body>
